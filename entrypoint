@@ -406,8 +406,20 @@ chownmod "flag$lvl:nebulous" u=srwx,go=rx "/home/flag$lvl/flag$lvl"
 
 ######################################################################
 lvl="15"
-# echo "[*] Setting up level$lvl"
-# TODO flag15
+echo "[*] Setting up level$lvl"
+files_for "$lvl"
+create_flag_account "$lvl"
+cbuild "/home/flag$lvl/flag$lvl"
+patchelf --set-rpath "/var/tmp/flag$lvl" "/home/flag$lvl/flag$lvl"
+chownmod "flag$lvl:nebulous" u=srwx,go=rx "/home/flag$lvl/flag$lvl"
+# gobuild "/home/flag$lvl/flag$lvl"
+go build --buildvcs=false --ldflags="-s -w" \
+    -o "/home/flag15/flag15.1" --trimpath "/nebulous/flag15/main.go"
+patchelf --set-rpath "/var/tmp/flag$lvl" "/home/flag$lvl/flag$lvl.1"
+chownmod "flag$lvl:nebulous" u=srwx,go=rx "/home/flag$lvl/flag$lvl.1"
+
+mkdir -p "/var/tmp/flag$lvl"
+chownmod nebulous:nebulous ug=rwx,o=rx "/var/tmp/flag$lvl"
 
 ######################################################################
 lvl="16"
