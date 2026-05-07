@@ -1,0 +1,10 @@
+services:
+  xx:
+    container_name: xx
+    # environment:
+    #   - TESTS=true
+    hostname: xx
+    image: ghcr.io/mjwhitta/xploit-xercises:rolling
+    ports:
+      - "2222:22" # For SSH
+    restart: unless-stopped

@@ -1,0 +1,124 @@
+name: GitHub Container Registry
+on:
+  push:
+    tags: ["v*.*.*"]
+  schedule:
+    - cron: "0 4 * * 0"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch tags
+        run: git pull --tags origin main
+      - name: Format latest tag for Docker
+        run: |
+          git log --pretty=tformat:"%h %s" | head -n 1
+          t="$(git tag -l | sort -V | tail -n 1)"
+          echo "LVER=$t" | tee -a "$GITHUB_ENV"
+          echo "MVER=${t%.*}" | tee -a "$GITHUB_ENV"
+          echo "SVER=${t%%.*}" | tee -a "$GITHUB_ENV"
+      - uses: docker/login-action@v3
+        with:
+          password: ${{secrets.GITHUB_TOKEN}}
+          registry: ghcr.io
+          username: ${{github.actor}}
+      - name: Setup Alpine container
+        run: |
+          git checkout ./Dockerfile
+          sed -i "s/#alpine# //g" ./Dockerfile
+      - name: Build Alpine container
+        uses: docker/setup-buildx-action@v3
+      - name: Push Alpine container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/${{github.repository}}:alpine
+            ghcr.io/${{github.repository}}:${{env.LVER}}-alpine
+            ghcr.io/${{github.repository}}:${{env.MVER}}-alpine
+            ghcr.io/${{github.repository}}:${{env.SVER}}-alpine
+      - name: Setup Debian container
+        run: |
+          git checkout ./Dockerfile
+          sed -i "s/#debian# //g" ./Dockerfile
+      - name: Build Debian container
+        uses: docker/setup-buildx-action@v3
+      - name: Push Debian container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/${{github.repository}}:debian
+            ghcr.io/${{github.repository}}:${{env.LVER}}-debian
+            ghcr.io/${{github.repository}}:${{env.MVER}}-debian
+            ghcr.io/${{github.repository}}:${{env.SVER}}-debian
+      - name: Setup Debian slim container
+        run: |
+          git checkout ./Dockerfile
+          sed -i "s/#slim# //g" ./Dockerfile
+      - name: Build Debian slim container
+        uses: docker/setup-buildx-action@v3
+      - name: Push Debian slim container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/${{github.repository}}:slim
+            ghcr.io/${{github.repository}}:${{env.LVER}}-slim
+            ghcr.io/${{github.repository}}:${{env.MVER}}-slim
+            ghcr.io/${{github.repository}}:${{env.SVER}}-slim
+      - name: Setup Ubuntu container
+        run: |
+          git checkout ./Dockerfile
+          sed -i "s/#ubuntu# //g" ./Dockerfile
+      - name: Build Ubuntu container
+        uses: docker/setup-buildx-action@v3
+      - name: Push Ubuntu container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/${{github.repository}}:ubuntu
+            ghcr.io/${{github.repository}}:${{env.LVER}}-ubuntu
+            ghcr.io/${{github.repository}}:${{env.MVER}}-ubuntu
+            ghcr.io/${{github.repository}}:${{env.SVER}}-ubuntu
+      - name: Setup Ubuntu rolling container
+        run: |
+          git checkout ./Dockerfile
+          sed -i "s/#rolling# //g" ./Dockerfile
+      - name: Build Ubuntu rolling container
+        uses: docker/setup-buildx-action@v3
+      - name: Push Ubuntu rolling container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ghcr.io/${{github.repository}}:rolling
+            ghcr.io/${{github.repository}}:${{env.LVER}}-rolling
+            ghcr.io/${{github.repository}}:${{env.MVER}}-rolling
+            ghcr.io/${{github.repository}}:${{env.SVER}}-rolling
