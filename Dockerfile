@@ -1,5 +1,6 @@
 #alpine# FROM alpine:edge
 #alpine# RUN apk --no-cache --update add bash && \
+#alpine#     apk --no-cache add merge-usr && merge-usr && apk del merge-usr \
 #alpine#     rm -f -r /tmp/* /var/{cache/apk,tmp}/*
 #debian# FROM debian:stable
 #slim# FROM debian:stable-slim
